@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Introduction to dash.js | IRAC 14</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <script src="http://cdn.dashjs.org/latest/dash.all.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.2.0/chart.js"></script>
+        <script>
+			document.addEventListener("DOMContentLoaded", function () {
+			init();
+			});
+			function init(){
+			var video,
+			player,
+			mpd_url = "./output_no_encrypt/stream.mpd";
+			video = document.querySelector("video");
+			player = dashjs.MediaPlayer().create();
+			player.initialize(video, mpd_url, true);
+			player.on(dashjs.MediaPlayer.events["PLAYBACK_ENDED"], function() {
+			clearInterval(eventPoller);
+			});
+			var i=-1;
+			var eventPoller = setInterval(function() {
+					var hoy = new Date();
+					var tiempo=new Array();
+					var hora = hoy.getHours() + ':' + hoy.getMinutes() + ':' + hoy.getSeconds();
+
+				var streamInfo = player.getActiveStream().getStreamInfo();
+				var dashMetrics = player.getDashMetrics();
+				var dashAdapter = player.getDashAdapter();
+				if (dashMetrics && streamInfo) {
+				const periodIdx = streamInfo.index;
+				var repSwitch = dashMetrics.getCurrentRepresentationSwitch('video', true);
+				var bufferLevel = dashMetrics.getCurrentBufferLevel('video', true);
+				var bitrate = repSwitch ? Math.round(dashAdapter.
+				getBandwidthForRepresentation(repSwitch.to,
+				periodIdx) / 1000) : NaN;
+				document.getElementById('buffer').innerText = bufferLevel + " secs";
+				document.getElementById('bitrate').innerText = bitrate + " Kbps";
+				document.getElementById('representation').innerText = repSwitch.to;
+		
+				myChart.data.labels.push(hora);
+				i=i+1;
+				myChart.data.datasets[0].data[i]=bitrate;
+				myChart.data.datasets[1].data[i]=bufferLevel;
+				myChart.update();
+				}
+			}, 75);
+			}
+		</script>
+
+        <style>
+            body,h1 {font-family: "Raleway", Arial, sans-serif}
+            h1 {letter-spacing: 6px}
+            video {width: 640px;height: 360px;margin: 0 auto 30px;display: block;}
+            footer {margin-top: 30px;}
+            .code {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+                margin-top: 30px;
+            }
+			#myChart {
+				margin: 0 auto;
+				display: block;
+			}
+
+
+        </style>
+    </head>
+    <body>
+        <header class="w3-panel w3-center w3-opacity" style="padding:80px 16px">
+            <h1 class="w3-xlarge">Introduction to dash.js</h1>
+            <h1>IRAC 14</h1>
+        </header>
+
+    <div class="code">
+    <video class="dashjs-player" autoplay controls preload="auto" muted>
+    </video>
+    </div>
+     <div class="code">
+      <p>Video Bitrate: <span id="bitrate"></span></p>
+      <p>Video Buffer: <span id="buffer"></span> </p>
+      <p>Video Representation: <span id="representation"></span></p>
+    </div>
+
+		<!-- video Streaming metrics through real-time graphics -->
+
+		<!-- The canvas element draws a graphic -->  
+		<canvas id="myChart" width="800" height="400"></canvas>
+		<script>
+			
+			// Create a new date object to get the current time
+			var hoy = new Date();
+
+			// Create an empty array to store the time data
+			var tiempo = new Array();
+
+			// Format the current time as a string in the format 'hour:minute:second'
+			var hora = hoy.getHours() + ':' + hoy.getMinutes() + ':' + hoy.getSeconds();
+
+			// Create an array with a single label for the current time
+			var labels = [hora];
+
+			// Create an empty data object for the chart with two datasets for bitrate and buffer level
+			// https://www.chartjs.org/docs/latest/samples/area/line-datasets.html
+			var data = {
+			labels: labels,
+			datasets: [
+				{
+					label: 'Bitrate',
+					data: [],
+					borderColor: 'rgb(54, 162, 235)',
+					backgroundColor: 'rgba(54, 162, 235, 0.2)',
+					fill: 'origin',
+					yAxisID: 'y',
+				},
+				{
+				label: 'Buffer Level',
+				data: [],
+				borderColor: 'rgb(255, 99, 132)',
+				backgroundColor: 'rgba(255, 99, 132, 0.2)',
+				fill:'origin',
+				yAxisID: 'y1',
+				}
+			]
+			};
+
+			// Create a chart configuration object with options for the chart layout and data
+			// https://www.chartjs.org/docs/latest/samples/line/multi-axis.html
+			const config = {
+			type: 'line',
+			data: data,
+			options: {
+				responsive: false,
+				stacked: false,
+				elements: {
+				point:{
+					radius: 2
+				}
+				},
+				plugins: {
+				title: {
+					display: true,
+					text: 'Bitrate and buffer level vs Time'
+				}
+				},
+				scales: {
+				x: {
+					display: true,
+					title: {
+					display: true,
+					text: 'Hour:minutes:seconds'
+					}
+				},
+				y: {
+					type: 'linear',
+					display: true,
+					position: 'left',
+					title: {
+					display: true,
+					text: 'Bitrate (kbps)'
+					}
+				},
+				y1: {
+					type: 'linear',
+					display: true,
+					position: 'right',
+					title: {
+					display: true,
+					text: 'Buffer level (s)'
+					}
+				},
+				}
+			},
+			};
+
+			// Create a new Chart.js chart object with the specified configuration
+			// https://www.chartjs.org/docs/latest/configuration/
+			var myChart = new Chart(
+			document.getElementById('myChart'),
+			config
+			);
+
+		  </script>
+		  
+		  
+		  
+
+		        <footer class="w3-container w3-padding-64 w3-light-grey w3-center w3-large"> 
+                    <p>Integración de Redes, Aplicaciones y Contenidos</p>
+                    <p>Universidad Politécnica de Madrid</p>
+                </footer>
+    </body>
+</html>

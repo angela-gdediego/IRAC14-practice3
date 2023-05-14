@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Introduction to dash.js | IRAC 14</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <script src="http://cdn.dashjs.org/latest/dash.all.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.2.0/chart.js"></script>
+         <script>
+             document.addEventListener("DOMContentLoaded", function () {
+             init();
+             });
+             
+             function init(){
+             var video,
+             player,
+             mpd_url = "./output_no_encrypt/stream.mpd";
+             
+             video = document.querySelector("video");
+             player = dashjs.MediaPlayer().create();
+             player.initialize(video, mpd_url, true);
+             player.on(dashjs.MediaPlayer.events["PLAYBACK_ENDED"], function() {
+             clearInterval(eventPoller);
+             });
+             
+             var eventPoller = setInterval(function() {
+                 var streamInfo = player.getActiveStream().getStreamInfo();
+                 var dashMetrics = player.getDashMetrics();
+                 var dashAdapter = player.getDashAdapter();
+                 
+                 if (dashMetrics && streamInfo) {
+                     const periodIdx = streamInfo.index;
+                     var repSwitch = dashMetrics.getCurrentRepresentationSwitch('video', true);
+                     var bufferLevel = dashMetrics.getCurrentBufferLevel('video', true);
+                     var bitrate = repSwitch ? Math.round(dashAdapter.
+                     getBandwidthForRepresentation(repSwitch.to,
+                     periodIdx) / 1000) : NaN;
+                     document.getElementById('buffer').innerText = bufferLevel + " secs";
+                     document.getElementById('bitrate').innerText = bitrate + " Kbps";
+                     document.getElementById('representation').innerText = repSwitch.to;
+                 }
+             }, 500);
+             }
+         </script>
+        <style>
+            body,h1 {font-family: "Raleway", Arial, sans-serif}
+            h1 {letter-spacing: 6px}
+            video {width: 640px;height: 360px;margin: 0 auto 30px;display: block;}
+            footer {margin-top: 30px;}
+            .code {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+                margin-top: 30px;
+            }
+
+        </style>
+    </head>
+    <body>
+        <header class="w3-panel w3-center w3-opacity" style="padding:80px 16px">
+            <h1 class="w3-xlarge">Introduction to dash.js</h1>
+            <h1>IRAC 14</h1>
+        </header>
+
+    <div class="code">
+    <video class="dashjs-player" autoplay controls preload="auto" muted>
+    </video>
+    </div>
+     <div class="code">
+      <p>Video Bitrate: <span id="bitrate"></span> kbps</p>
+      <p>Video Buffer: <span id="buffer"></span> seconds</p>
+      <p>Video Representation: <span id="representation"></span></p>
+    </div>
+
+
+		        <footer class="w3-container w3-padding-64 w3-light-grey w3-center w3-large"> 
+                    <p>Integración de Redes, Aplicaciones y Contenidos</p>
+                    <p>Universidad Politécnica de Madrid</p>
+                </footer>
+    </body>
+</html>

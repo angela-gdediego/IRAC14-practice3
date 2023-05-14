@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Introduction to dash.js | IRAC 14</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+        <script src="http://cdn.dashjs.org/latest/dash.all.min.js"></script>
+        <style>
+            body,h1 {font-family: "Raleway", Arial, sans-serif}
+            h1 {letter-spacing: 6px}
+            video {width: 640px;height: 360px;margin: 0 auto 30px;display: block;}
+            footer {margin-top: 30px;}
+        </style>
+    </head>
+    <body>
+        <header class="w3-panel w3-center w3-opacity" style="padding:80px 16px">
+            <h1 class="w3-xlarge">Introduction to dash.js</h1>
+            <h1>IRAC 14</h1>
+        </header>
+
+        <video class="dashjs-player" autoplay controls preload="auto">
+            <source src="https://dash.akamaized.net/envivio/EnvivioDash3/manifest.mpd" type="application/dash+xml"/>
+        </video>
+
+        <footer class="w3-container w3-padding-64 w3-light-grey w3-center w3-large"> 
+            <p>Integración de Redes, Aplicaciones y Contenidos</p>
+            <p>Universidad Politécnica de Madrid</p>
+        </footer>
+
+        <script>
+            var player;
+            document.addEventListener("DOMContentLoaded", function () {
+            init();
+            });
+            function init(){
+            player = dashjs.MediaPlayerFactory.create( document.querySelector(".dashjs-player"));
+            };
+        </script>
+    </body>
+</html>
